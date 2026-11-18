@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="영일 막걸리 브랜드 공식몰 디자인 시안 — 위시켓 제안용">
+<meta property="og:title" content="영일 막걸리 브랜드몰 (디자인 시안)">
+<meta property="og:description" content="카페24 기반 브랜드 쇼핑몰 메인페이지 디자인 시안">
+<meta property="og:type" content="website">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}</style>
+<title>영일 막걸리 브랜드몰</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400;600&family=Noto+Sans+KR:wght@300;400;500;700&family=Jost:wght@300;400;500&display=swap">
+<style>
+/* 레이아웃: 좌측 카피 + 우측 전면 사진의 분할형 히어로, 이후 풀블리드 밴드가 수직으로 쌓이는 브랜드몰 구조.
+   색: 막걸리 유백색 바탕 · 옹기 먹색 글자 · 청자 포인트 (쌀 · 누룩 · 도자기에서 추출) */
+:root{
+  --paper:#FBFAF8; --paper-2:#F2EFE9; --paper-3:#E7E2D8;
+  --ink:#23201D; --ink-2:#5C564E; --ink-3:#938C81;
+  --celadon:#6F8378; --celadon-soft:#CBD6CF;
+  --line:#DFD9CF; --milk:#FFFFFF; --scrim:rgba(24,21,17,.46);
+  --font-d:"Noto Serif KR",'Nanum Myeongjo',serif;
+  --font-b:"Noto Sans KR",system-ui,-apple-system,sans-serif;
+  --font-l:"Jost","Noto Sans KR",sans-serif;
+  --gut-l:max(20px,env(safe-area-inset-left,0px));
+  --gut-r:max(20px,env(safe-area-inset-right,0px));
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#17150F; --paper-2:#201D17; --paper-3:#2B2720;
+  --ink:#F2EDE4; --ink-2:#BDB5A8; --ink-3:#8B8276;
+  --celadon:#9DB5A8; --celadon-soft:#3A463F;
+  --line:#332F27; --milk:#262219; --scrim:rgba(0,0,0,.5); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#17150F; --paper-2:#201D17; --paper-3:#2B2720;
+  --ink:#F2EDE4; --ink-2:#BDB5A8; --ink-3:#8B8276;
+  --celadon:#9DB5A8; --celadon-soft:#3A463F;
+  --line:#332F27; --milk:#262219; --scrim:rgba(0,0,0,.5); color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-b);font-weight:300;line-height:1.75;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--ink)}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--celadon);outline-offset:3px}
+.wrap{max-width:1280px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.band{padding-block:clamp(72px,9vw,128px)}
+.lbl{font-family:var(--font-l);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);margin:0}
+h1,h2,h3{font-family:var(--font-d);font-weight:300;text-wrap:balance;margin:0;letter-spacing:-.01em}
+
+.demo{background:var(--ink);color:#DED7C9;font-family:var(--font-l);font-size:11px;letter-spacing:.08em;text-align:center;padding-block:9px;padding-left:var(--gut-l);padding-right:var(--gut-r);position:relative;z-index:50}
+.demo b{color:#fff;font-weight:500}
+
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:color-mix(in srgb,var(--paper) 90%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hdr-in{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding-block:17px;padding-left:var(--gut-l);padding-right:var(--gut-r);max-width:1280px;margin:0 auto}
+.mark{font-family:var(--font-d);font-size:20px;letter-spacing:.5em;text-indent:.5em;grid-column:2;white-space:nowrap}
+.nav{display:flex;gap:26px;font-family:var(--font-l);font-size:12px;letter-spacing:.16em;color:var(--ink-2);grid-column:1}
+.nav a:hover{color:var(--celadon)}
+.util{display:flex;gap:18px;justify-content:flex-end;grid-column:3;font-family:var(--font-l);font-size:12px;letter-spacing:.1em;color:var(--ink-2)}
+@media(max-width:880px){.nav{display:none}.util{gap:12px;font-size:10.5px}}
+
+/* 분할 히어로 */
+.hero{display:grid;grid-template-columns:1.02fr .98fr;background:var(--paper-2);min-height:clamp(480px,70vh,660px)}
+.hero-txt{display:flex;flex-direction:column;justify-content:center;padding-block:clamp(48px,6vw,80px);padding-left:var(--gut-l);padding-right:clamp(20px,4vw,64px);position:relative}
+.hero-txt h1{font-size:clamp(29px,3.9vw,50px);line-height:1.52;margin:22px 0 0;font-weight:200}
+.hero-txt p{max-width:27em;color:var(--ink-2);margin:22px 0 0;font-size:14.5px}
+.hero-ph{position:relative;overflow:hidden;min-height:300px;background:var(--paper-3)}
+.hero-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 46%}
+.cue{margin-top:36px;display:inline-flex;align-items:center;gap:11px;font-family:var(--font-l);font-size:10.5px;letter-spacing:.22em;color:var(--ink-3)}
+.cue i{display:block;width:36px;height:1px;background:var(--ink-3);animation:cue 2.6s ease-in-out infinite}
+@keyframes cue{50%{transform:scaleX(.38);transform-origin:left}}
+@media(prefers-reduced-motion:reduce){.cue i{animation:none}}
+@media(max-width:880px){
+  .hero{grid-template-columns:1fr;min-height:0}
+  .hero-ph{order:-1;aspect-ratio:4/3;min-height:0}
+  .hero-txt{padding-right:var(--gut-r);padding-block:40px 52px}
+}
+
+.decl{text-align:center}
+.decl .rule{width:1px;height:56px;background:var(--line);margin:0 auto 32px}
+.decl h2{font-size:clamp(20px,2.7vw,31px);line-height:2.05;font-weight:200}
+
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:36px;flex-wrap:wrap}
+.sec-head h2{font-size:clamp(22px,2.9vw,31px);margin-top:9px}
+.arrows{display:flex;gap:8px}
+.arrows button{width:41px;height:41px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink-2);transition:.25s;font-family:var(--font-l)}
+.arrows button:hover{border-color:var(--celadon);color:var(--celadon)}
+.rail{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding-bottom:4px}
+.rail::-webkit-scrollbar{display:none}
+.card{flex:0 0 clamp(216px,24%,290px);scroll-snap-align:start;min-width:0}
+.shot{aspect-ratio:4/5;background:var(--paper-2);position:relative;overflow:hidden;max-width:100%}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.card:hover .shot img{transform:scale(1.045)}
+.tag{position:absolute;top:0;left:0;z-index:2;font-family:var(--font-l);font-size:10px;letter-spacing:.16em;padding:5px 10px;background:var(--ink);color:var(--paper)}
+.card h3{font-size:14.5px;font-family:var(--font-b);font-weight:400;margin:17px 0 5px;line-height:1.55}
+.spec{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin:0}
+.price{margin:9px 0 0;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:7px;justify-content:center;margin-top:32px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--line);transition:.3s}
+.dots i.on{background:var(--celadon);transform:scale(1.45)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,78px);align-items:center}
+@media(max-width:840px){.split{grid-template-columns:1fr}}
+.plate{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--paper-3);max-width:100%}
+.plate img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.story h2{font-size:clamp(21px,2.8vw,33px);line-height:1.64;margin:14px 0 22px;font-weight:200}
+.story p{color:var(--ink-2);font-size:14.5px;margin:0 0 15px;max-width:34em}
+.more{display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--font-l);font-size:11px;letter-spacing:.2em;border-bottom:1px solid var(--ink);padding-bottom:6px}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3.4vw,52px)}
+@media(max-width:760px){.steps{grid-template-columns:1fr;gap:32px}}
+.step{border-top:1px solid var(--line);padding-top:22px}
+.step .n{font-family:var(--font-l);font-size:11px;letter-spacing:.22em;color:var(--celadon)}
+.step h3{font-size:18px;margin:12px 0 10px}
+.step p{margin:0;color:var(--ink-2);font-size:13.5px}
+
+.stock{display:grid;grid-template-columns:repeat(2,1fr);gap:0 clamp(24px,4vw,64px)}
+@media(max-width:700px){.stock{grid-template-columns:1fr}}
+.stock div{display:flex;justify-content:space-between;gap:16px;padding-block:17px;border-bottom:1px solid var(--line);font-size:14px;min-width:0}
+.stock span{color:var(--ink-3);font-size:11.5px;font-family:var(--font-l);letter-spacing:.1em;white-space:nowrap}
+
+.ftr{background:var(--paper-2);border-top:1px solid var(--line)}
+.ftr-in{max-width:1280px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r);padding-block:62px 40px}
+.ftr-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:clamp(26px,4vw,56px)}
+@media(max-width:820px){.ftr-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.ftr-grid{grid-template-columns:1fr}}
+.ftr h4{font-family:var(--font-l);font-size:11px;letter-spacing:.2em;color:var(--ink-3);margin:0 0 15px;font-weight:500;text-transform:uppercase}
+.ftr p,.ftr li{font-size:12.5px;color:var(--ink-2);margin:0 0 7px;line-height:1.85}
+.ftr ul{list-style:none;padding:0;margin:0}
+.biz{margin-top:42px;padding-top:26px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-3);line-height:2}
+.warn{margin-top:20px;padding:17px 19px;border:1px solid var(--line);background:var(--paper);font-size:12px;color:var(--ink-2);line-height:1.9}
+.warn b{color:var(--ink);font-weight:500}
+.tel{font-family:var(--font-l);font-size:23px;letter-spacing:.04em;color:var(--ink);font-variant-numeric:tabular-nums;margin-bottom:10px}
+
+.float{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:45;width:57px;height:57px;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--font-l);font-size:10px;letter-spacing:.06em;box-shadow:0 6px 24px rgba(0,0,0,.2);text-align:center;line-height:1.3}
+
+.rv{transform:translateY(18px);transition:transform .95s cubic-bezier(.2,.7,.2,1)}
+.rv.in{transform:none}
+@media(prefers-reduced-motion:reduce){.rv{transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+
+<div class="demo">위시켓 제안용 <b>디자인 시안</b> · 브랜드명 · 상품 · 이미지는 모두 <b>샘플</b>이며 실제 상호와 무관합니다</div>
+
+<header class="hdr"><div class="hdr-in">
+  <nav class="nav"><a href="#story">ABOUT</a><a href="#best">SHOP</a><a href="#stockist">STOCKIST</a><a href="#process">PROCESS</a><a href="#contact">CONTACT</a></nav>
+  <div class="mark">迎日</div>
+  <div class="util"><span>LOGIN</span><span>CART (0)</span><span>SEARCH</span></div>
+</div></header>
+
+<section class="hero">
+  <div class="hero-txt">
+    <p class="lbl">Yeongil Makgeolli · Pohang</p>
+    <h1>바다에서 가장 먼저<br>해가 뜨는 자리,<br>그 땅의 쌀로 빚습니다.</h1>
+    <p>영일만 간척지에서 자란 햅쌀과 전통 누룩, 그리고 시간. 세 가지만으로 비열처리 생막걸리를 빚습니다.</p>
+    <span class="cue"><i></i> SCROLL</span>
+  </div>
+  <div class="hero-ph"><img src="img/hero.jpg" alt="영일 막걸리 화이트와 블랙 도자기 병"></div>
+</section>
+
+<section class="band"><div class="wrap decl rv">
+  <div class="rule"></div>
+  <h2>거르지 않은 것은 맛이 아니라<br>시간이었습니다.</h2>
+</div></section>
+
+<section class="band" id="best" style="padding-top:0"><div class="wrap">
+  <div class="sec-head rv">
+    <div><p class="lbl">Best</p><h2>자주 찾으시는 술</h2></div>
+    <div class="arrows"><button id="pv" aria-label="이전 상품">←</button><button id="nx" aria-label="다음 상품">→</button></div>
+  </div>
+  <div class="rail" id="rail"></div>
+  <div class="dots" id="dots"></div>
+</div></section>
+
+<section class="band" id="story" style="background:var(--paper-2)"><div class="wrap split">
+  <div class="plate rv"><img src="img/story.jpg" alt="영일 화이트 750ml 단품" loading="lazy"></div>
+  <div class="story rv">
+    <p class="lbl">Our Story</p>
+    <h2>스무 번째 겨울,<br>같은 항아리에서</h2>
+    <p>영일만 들판의 쌀은 바닷바람을 맞고 자랍니다. 단단하고 단맛이 옅어, 발효를 마쳤을 때 뒷맛이 깨끗하게 떨어집니다.</p>
+    <p>저희는 스무 해 동안 같은 옹기에서 술을 빚습니다. 옹기 벽에 자리 잡은 효모가 해마다 같은 향을 만들어 냅니다. 설비를 바꾸지 않는 이유입니다.</p>
+    <span class="more">VIEW MORE</span>
+  </div>
+</div></section>
+
+<section class="band" id="process"><div class="wrap">
+  <div class="sec-head rv"><div><p class="lbl">Process</p><h2>빚는 순서</h2></div></div>
+  <div class="steps">
+    <div class="step rv"><div class="n">01</div><h3>쌀 씻기 · 고두밥</h3><p>영일만 햅쌀을 열두 번 씻어 전분을 덜어 냅니다. 잡미를 남기지 않기 위한 과정입니다.</p></div>
+    <div class="step rv"><div class="n">02</div><h3>삼양주 발효</h3><p>밑술에 두 번 덧술을 더해 21일간 저온 발효합니다. 인위적인 감미료를 넣지 않습니다.</p></div>
+    <div class="step rv"><div class="n">03</div><h3>비열처리 병입</h3><p>살균하지 않고 그대로 병에 담습니다. 효모가 살아 있어 냉장 보관이 필요합니다.</p></div>
+  </div>
+</div></section>
+
+<section class="band" id="stockist" style="background:var(--paper-2)"><div class="wrap">
+  <div class="sec-head rv"><div><p class="lbl">Stockist</p><h2>만나실 수 있는 곳</h2></div></div>
+  <div class="stock rv">
+    <div>영일대 보틀숍 해연 <span>포항</span></div>
+    <div>한남 주류상점 담소 <span>서울</span></div>
+    <div>죽도시장 전통주방 <span>포항</span></div>
+    <div>연남 술방 느루 <span>서울</span></div>
+    <div>구룡포 바다상회 <span>포항</span></div>
+    <div>성수 보틀바 온도 <span>서울</span></div>
+  </div>
+</div></section>
+
+<footer class="ftr" id="contact"><div class="ftr-in">
+  <div class="ftr-grid">
+    <div>
+      <h4>Customer Center</h4>
+      <p class="tel">054-123-4567</p>
+      <p>평일 10:00 – 17:00 / 점심 12:30 – 13:30<br>주말 · 공휴일 휴무</p>
+      <p>yeongil@example.com</p>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul><li>전체상품</li><li>선물세트</li><li>정기구독</li><li>장바구니 · 주문조회</li><li>마이페이지</li></ul>
+    </div>
+    <div>
+      <h4>Info</h4>
+      <ul><li>회사소개</li><li>이용약관</li><li>개인정보처리방침</li><li>이용안내 · 배송정책</li><li>교환 및 반품</li></ul>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>주류 판매 안내</b> — 본 제품은 주류입니다. <b>만 19세 미만 청소년에게는 판매하지 않으며</b>, 주문 시 성인인증 절차가 진행됩니다. 전통주(지역특산주)에 한해 관할 세무서의 통신판매 승인을 받아 온라인으로 판매하며, 주문자 정보는 관련 법령에 따라 국세청에 제공됩니다. 지나친 음주는 뇌졸중, 기억력 손상이나 치매를 유발합니다. 임신 중 음주는 기형아 출생 위험을 높입니다.
+  </div>
+
+  <div class="biz">
+    상호명 영일주조 농업회사법인(주) · 대표자 홍길동 · 사업장주소 경상북도 포항시 북구 ○○로 00, 2층<br>
+    사업자등록번호 000-00-00000 · 통신판매업신고 제0000-경북포항-0000호 · 주류통신판매 승인 제0000호 · 개인정보보호책임자 홍길동<br>
+    Copyright © 영일주조. All Rights Reserved. &nbsp;|&nbsp; 본 페이지는 위시켓 제안용 디자인 시안이며 실제 운영 사이트가 아닙니다.
+  </div>
+</div></footer>
+
+<div class="float">1:1<br>TALK</div>
+
+<script>
+var P=[
+ {n:"영일 화이트 750ml",s:"탁주 · 6.0% · 750ml 단품",p:11000,t:"",f:"img/p1.jpg"},
+ {n:"영일 화이트 750ml 3병",s:"탁주 · 6.0% · 750ml ×3",p:33000,t:"BEST",f:"img/p2.jpg"},
+ {n:"영일 화이트 3병 선물세트",s:"보자기 포장 · 750ml ×3",p:37000,t:"GIFT",f:"img/p3.jpg"},
+ {n:"영일 화이트 + 블랙 2병 세트",s:"혼합 구성 · 750ml ×2",p:28000,t:"NEW",f:"img/p4.jpg"},
+ {n:"영일 스파클링 375ml 6병",s:"탁주 · 5.0% · 375ml ×6",p:39000,t:"",f:"img/p5.jpg"}
+];
+var rail=document.getElementById('rail'),dots=document.getElementById('dots'),h='';
+P.forEach(function(x){
+  h+='<article class="card"><div class="shot">'+(x.t?'<span class="tag">'+x.t+'</span>':'')
+    +'<img src="'+x.f+'" alt="'+x.n+'" loading="lazy"></div>'
+    +'<h3>'+x.n+'</h3><p class="spec">'+x.s+'</p><p class="price">'+x.p.toLocaleString('ko-KR')+'원</p></article>';
+});
+rail.innerHTML=h;
+P.forEach(function(_,i){dots.insertAdjacentHTML('beforeend','<i'+(i===0?' class="on"':'')+'></i>')});
+function step(){var c=rail.querySelector('.card');return c?c.offsetWidth+18:280}
+document.getElementById('nx').onclick=function(){rail.scrollBy({left:step(),behavior:'smooth'})};
+document.getElementById('pv').onclick=function(){rail.scrollBy({left:-step(),behavior:'smooth'})};
+rail.addEventListener('scroll',function(){
+  var i=Math.round(rail.scrollLeft/step());
+  [].forEach.call(dots.children,function(d,j){d.className=j===i?'on':''});
+});
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1});
+  [].forEach.call(document.querySelectorAll('.rv'),function(el){io.observe(el)});
+}else{[].forEach.call(document.querySelectorAll('.rv'),function(el){el.classList.add('in')})}
+</script>
+
+</body>
+</html>
