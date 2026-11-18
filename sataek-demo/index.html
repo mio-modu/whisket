@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light dark">
+<title>사택 관리 · 시연 샘플</title>
+<style>
+/* ── 팔레트 7토큰 ───────────────────────────────────────────── */
+:root{
+  --bg:#FAF9F6; --surface:#FFFFFF; --line:#E2DFD8; --line2:#C8C3B9;
+  --ink:#15171A; --sub:#585D66; --accent:#0F4C81;
+  /* 업무 화면용 상태색 (표·태그·결재) */
+  --ok:#146A3C; --warn:#8A5200; --bad:#A3221B;
+  --tint:rgba(15,76,129,.07);
+  --sans:system-ui,-apple-system,"Segoe UI","Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --col:184px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1013; --surface:#15181C; --line:#262A30; --line2:#3A3F47;
+    --ink:#E9EBEE; --sub:#A6ACB6; --accent:#8CBBEA;
+    --ok:#6FD69B; --warn:#EDB35C; --bad:#FF928A;
+    --tint:rgba(140,187,234,.10);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 var(--sans);word-break:keep-all;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+/* 입체 금지 — 그림자는 어디에도 쓰지 않는다 */
+h1,h2,h3,p,ul,ol,figure{margin:0}
+h1,h2,h3{letter-spacing:-.035em;line-height:1.18;font-weight:700}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--bg);padding:10px 14px;z-index:40}
+.skip:focus{left:8px;top:8px}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.07em;color:var(--sub);text-transform:uppercase}
+.lead{color:var(--sub);font-size:16px;max-width:38em}
+.small{font-size:13px;color:var(--sub)}
+
+/* ── 머리 ──────────────────────────────────────────────────── */
+header{border-bottom:1px solid var(--line);background:var(--bg);position:sticky;top:0;z-index:30}
+.bar{display:flex;align-items:center;gap:16px;min-height:58px;flex-wrap:wrap;padding:8px 0}
+.brand{font-weight:700;letter-spacing:-.02em;text-decoration:none;font-size:15px;white-space:nowrap}
+.brand span{color:var(--sub);font-weight:500}
+.sp{flex:1 1 auto}
+.roles{display:flex;gap:2px;flex-wrap:wrap}
+.roles button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  color:var(--sub);padding:6px 9px;font-size:13px;font-weight:600;letter-spacing:-.01em;
+}
+.roles button:hover{color:var(--ink)}
+.roles button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+/* ── 버튼 ──────────────────────────────────────────────────── */
+.btn{background:var(--accent);color:var(--bg);border:1px solid var(--accent);border-radius:2px;
+  padding:8px 15px;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.btn:hover{filter:brightness(1.12)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.g{background:none;color:var(--ink);border-color:var(--line2)}
+.btn.g:hover{border-color:var(--ink);filter:none}
+.btn.lg{padding:12px 20px;font-size:15px}
+.btn.sm{padding:5px 11px;font-size:13px}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.btn.no{background:none;border-color:var(--bad);color:var(--bad)}
+.btn.no:hover{background:var(--bad);color:var(--bg);filter:none}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+
+/* ── 펼침면 구도: 라벨 단 | 본문 단, 사이에 선 하나 ────────── */
+.sec{border-top:1px solid var(--line);padding:30px 0 34px}
+.sec:first-of-type{border-top:0}
+.spread{display:grid;grid-template-columns:var(--col) 1fr;gap:0 34px;align-items:start}
+.spread>.lab{border-right:1px solid var(--line);padding-right:22px;min-height:100%}
+.spread>.lab p{margin-top:8px;font-size:13px;color:var(--sub)}
+.body>*+*{margin-top:18px}
+
+/* ── 히어로 ────────────────────────────────────────────────── */
+.hero{padding:46px 0 38px}
+.hero h1{font-size:clamp(28px,4.6vw,44px);margin:18px 0 16px;max-width:19em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:0 40px;align-items:start}
+.hero-grid>div:last-child{border-left:1px solid var(--line);padding-left:34px}
+
+/* 수치 판 — 상자 없이 선으로만 */
+.readout{margin-top:4px}
+.readout dl{display:grid;grid-template-columns:1fr auto;gap:0;margin:0}
+.readout dt,.readout dd{margin:0;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.readout dt{color:var(--sub)}
+.readout dd{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.readout dd.over{color:var(--warn)}
+.readout .verdict{border-top:1px solid var(--line2);padding-top:12px;margin-top:0;
+  font-size:14px;font-weight:600;color:var(--warn);display:flex;gap:8px;align-items:flex-start}
+.readout .verdict svg{width:17px;height:17px;flex:none;margin-top:2px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* ── 번호 목록(절차) ──────────────────────────────────────── */
+.steps{counter-reset:s}
+.steps li{list-style:none;border-top:1px solid var(--line);padding:16px 0;display:grid;
+  grid-template-columns:34px 1fr auto;gap:0 14px;align-items:baseline}
+.steps li:before{counter-increment:s;content:counter(s,decimal-leading-zero);
+  font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+.steps b{display:block;font-size:15px}
+.steps span{font-size:13px;color:var(--sub)}
+.steps .btn{align-self:center}
+
+/* ── 3단 글 덩어리 ────────────────────────────────────────── */
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.cols>div{border-top:1px solid var(--line);padding:16px 22px 4px 0}
+.cols>div+div{border-left:1px solid var(--line);padding-left:22px}
+.cols h3{font-size:15px;margin-bottom:6px}
+.cols p{font-size:13px;color:var(--sub)}
+.figs{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.figs>div{border-top:1px solid var(--line);padding:14px 16px 0 0}
+.figs>div+div{border-left:1px solid var(--line);padding-left:16px}
+.figs b{display:block;font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.03em}
+.figs span{font-size:12px;color:var(--sub);display:block;margin-top:2px}
+
+/* ── 업무 화면 ────────────────────────────────────────────── */
+main{display:block;padding:26px 0 72px}
+.ttl{border-bottom:1px solid var(--line2);padding-bottom:14px;margin-bottom:4px;
+  display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.ttl h1{font-size:25px}
+.ttl .who{font-size:13px;color:var(--sub);font-family:var(--mono);margin-left:auto}
+.blk{border-top:1px solid var(--line);padding:24px 0 6px}
+.blk:first-of-type{border-top:0;padding-top:20px}
+.blk h2{font-size:17px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.blk h2+p{margin-top:6px}
+.blk>*+*{margin-top:14px}
+
+/* 표 — 상자 없이 가로 선만 */
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{font-family:var(--mono);font-size:11px;letter-spacing:.02em;color:var(--sub);
+  text-transform:uppercase;font-weight:600;text-align:left;padding:0 12px 8px 0;
+  border-bottom:1px solid var(--line2);white-space:nowrap}
+tbody td{padding:12px 12px 12px 0;border-bottom:1px solid var(--line);vertical-align:middle;
+  overflow-wrap:anywhere}
+thead th:last-child,tbody td:last-child{padding-right:0}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.id{font-family:var(--mono);font-size:13px;color:var(--sub)}
+tbody tr.flash{animation:fl .42s ease-out}
+@keyframes fl{from{background:var(--tint)}to{background:transparent}}
+
+/* 상태 표시 — 점 + 글자, 칠하지 않는다 */
+.tag{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap}
+.tag:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.t-ok{color:var(--ok)}.t-w{color:var(--warn)}.t-b{color:var(--bad)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap}
+.st svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.9;flex:none}
+.st.lock{color:var(--warn)}.st.open{color:var(--ok)}
+.mark{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.mark.o{color:var(--ok)}.mark.b{color:var(--bad)}
+
+/* 진행 — 선 하나에 네 점 */
+.pg{display:inline-flex;align-items:center;gap:0;vertical-align:middle}
+.pg i{width:8px;height:8px;border:1px solid var(--line2);background:var(--bg);border-radius:50%;flex:none}
+.pg u{width:17px;height:1px;background:var(--line2);text-decoration:none}
+.pg i.d{background:var(--ok);border-color:var(--ok)}
+.pg u.d{background:var(--ok)}
+.pg i.c{background:var(--warn);border-color:var(--warn)}
+.pg i.x{background:var(--bad);border-color:var(--bad)}
+
+/* 입력 — 밑줄만 */
+.form{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fld label{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--sub);text-transform:uppercase}
+.fld input,.fld select{background:none;border:0;border-bottom:1px solid var(--line2);
+  border-radius:0;padding:7px 2px;font-size:15px;max-width:100%}
+.fld select{appearance:none;padding-right:18px;
+  background:linear-gradient(45deg,transparent 50%,currentColor 50%) no-repeat right 6px center/5px 5px,
+             linear-gradient(135deg,currentColor 50%,transparent 50%) no-repeat right 1px center/5px 5px}
+.fld input:focus,.fld select:focus{border-bottom-color:var(--accent);outline:0}
+.fld input:focus-visible,.fld select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* 어드민 */
+.admin{display:grid;grid-template-columns:238px 1fr;gap:0 30px;align-items:start}
+.admin nav{border-right:1px solid var(--line);padding-right:22px}
+.menu{list-style:none;padding:0}
+.menu li{border-top:1px solid var(--line)}
+.menu li:first-child{border-top:0}
+.menu button{width:100%;text-align:left;background:none;border:0;padding:10px 0;font-size:14px;
+  display:flex;align-items:center;gap:10px;color:var(--sub);border-left:2px solid transparent;padding-left:10px}
+.menu button:hover{color:var(--ink)}
+.menu button[aria-current="true"]{color:var(--ink);font-weight:600;border-left-color:var(--accent)}
+.menu .soon{color:var(--sub);opacity:.72}
+.menu .soon:hover{color:var(--sub)}
+.menu em{margin-left:auto;font-family:var(--mono);font-size:10px;font-style:normal;letter-spacing:.01em;
+  color:var(--sub);white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.kpis>div{border-top:1px solid var(--line);padding:14px 14px 2px 0}
+.kpis>div+div{border-left:1px solid var(--line);padding-left:16px}
+.kpis b{display:block;font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.03em;line-height:1.2}
+.kpis span{font-size:12px;color:var(--sub)}
+
+/* 안내 화면 */
+.notice{max-width:34em;padding:28px 0 10px}
+.notice h2{font-size:22px;margin:10px 0 10px}
+.notice .code{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--sub)}
+.notice .cta{margin-top:22px}
+
+#toast{position:fixed;left:20px;right:20px;bottom:20px;max-width:520px;background:var(--ink);color:var(--bg);
+  padding:13px 16px;font-size:14px;font-weight:600;border-radius:2px;opacity:0;
+  transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:35}
+#toast.on{opacity:1;transform:translateY(0)}
+footer{border-top:1px solid var(--line);padding:20px 0 44px;font-size:13px;color:var(--sub)}
+footer p+p{margin-top:6px}
+
+/* ── 좁은 폭 ──────────────────────────────────────────────── */
+@media (max-width:860px){
+  .hero-grid{grid-template-columns:1fr;gap:30px}
+  .hero-grid>div:last-child{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:24px}
+  .spread{grid-template-columns:1fr;gap:14px}
+  .spread>.lab{border-right:0;padding-right:0;border-bottom:1px solid var(--line);padding-bottom:12px}
+  .cols,.figs{grid-template-columns:1fr}
+  .cols>div+div,.figs>div+div{border-left:0;padding-left:0}
+  .admin{grid-template-columns:1fr;gap:22px}
+  .admin nav{border-right:0;padding-right:0;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpis>div:nth-child(odd)+div{border-left:1px solid var(--line);padding-left:16px}
+}
+@media (max-width:640px){
+  body{font-size:15px}
+  .wrap{padding:0 16px}
+  .bar .sp{display:none}
+  .bar #reset{order:1;margin-left:auto}
+  .roles{order:2;flex-basis:100%}
+  .cv{display:block}
+  .ttl .who{margin-left:0;flex-basis:100%}
+  table{display:block}
+  thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  tbody,tbody tr,tbody td{display:block;width:100%}
+  tbody tr{border-top:1px solid var(--line);padding:12px 0 14px}
+  tbody tr:first-child{border-top:0}
+  tbody td{border:0;padding:3px 0;display:grid;grid-template-columns:86px minmax(0,1fr);gap:12px;align-items:baseline}
+  tbody td:before{content:attr(data-label);font-family:var(--mono);font-size:10px;letter-spacing:.02em;
+    text-transform:uppercase;color:var(--sub);padding-top:4px}
+  tbody td.num{text-align:left}
+  tbody td.act{margin-top:8px}
+  tbody td.act:before{content:""}
+  tbody td.blank{display:none}
+  .steps li{grid-template-columns:28px 1fr;gap:0 12px}
+  .steps .btn{grid-column:2;justify-self:start;margin-top:10px}
+  .form{gap:14px}
+  .fld{flex:1 1 100%}
+  .kpis{grid-template-columns:1fr}
+  .kpis>div+div{border-left:0;padding-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너가기</a>
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#/">사택 관리 <span>· 시연 샘플</span></a>
+    <span class="sp"></span>
+    <div class="roles" id="roles" role="group" aria-label="시연 역할 전환"></div>
+    <button class="btn g sm" id="reset">처음으로</button>
+  </div>
+</header>
+<div id="v"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ── 역할·경로 ─────────────────────────────────────────────── */
+var ROLES={dispatch:"발령자",staff:"사택담당자",approver:"결재권자",landlord:"임대인",admin:"운영자"};
+var PERSONA={dispatch:"정하늘 과장",staff:"김도윤 담당",approver:"이선우 이사",landlord:"김민수",admin:"플랫폼 운영자"};
+var HOME={dispatch:"#/me",staff:"#/contracts",approver:"#/approvals",landlord:"#/landlord",admin:"#/admin"};
+var ROUTE={"#/me":"dispatch","#/contracts":"staff","#/approvals":"approver","#/landlord":"landlord","#/admin":"admin"};
+var TITLE={"#/me":"내 사택","#/contracts":"계약 기록","#/approvals":"초과 결재함","#/landlord":"임대 현황","#/admin":"운영 대시보드"};
+var LIMIT={"과장":100,"차장":120,"부장":150};
+var HOUSES=[
+ {id:"H1",name:"청주 오송 레이크뷰 502호",rent:95,owner:"김민수",acct:"110-234-567890",reg:"소유자 김민수 / 700312-1****** / 근저당 없음 / 전용 59.8㎡"},
+ {id:"H2",name:"청주 율량 센트럴 1203호",rent:135,owner:"이정훈",acct:"302-0451-7788-31",reg:"소유자 이정훈 / 680921-1****** / 근저당 1건 / 전용 84.9㎡"},
+ {id:"H3",name:"청주 복대 하이츠 304호",rent:118,owner:"박서연",acct:"356-1122-3344-55",reg:"소유자 박서연 / 750105-2****** / 근저당 없음 / 전용 74.2㎡"}
+];
+/* 어드민 13개 메뉴 — 3개 구현, 10개는 본 개발 범위 */
+var MENUS=[
+ {k:"dash",n:"대시보드",on:1},{k:"asset",n:"사택 자산 관리"},{k:"contract",n:"계약 관리",on:1},
+ {k:"movein",n:"입주·퇴거 관리"},{k:"appr",n:"결재 관리"},{k:"owner",n:"임대인 관리"},
+ {k:"pay",n:"월세·관리비 지급"},{k:"deposit",n:"보증금 관리"},{k:"fix",n:"하자·수리 요청"},
+ {k:"rule",n:"규정·한도 관리"},{k:"user",n:"사용자·권한 관리"},{k:"notice",n:"알림·공지"},
+ {k:"audit",n:"감사 로그",on:1}
+];
+
+var I={
+ lock:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7.8A4 4 0 0 1 16 7.8V11"/></svg>',
+ open:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7.8A4 4 0 0 1 15.4 5.9"/></svg>',
+ warn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5 21 20H3z"/><path d="M12 10.5v4"/><path d="M12 17.2v.3"/></svg>'
+};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var mask=function(a){var p=a.split("-");if(p.length<3)return a;
+ return [p[0]].concat(p.slice(1,-1).map(function(x){return "*".repeat(x.length)}),[p[p.length-1]]).join("-")};
+var maskName=function(n){return n.charAt(0)+"○".repeat(n.length-1)};
+var H=function(id){for(var i=0;i<HOUSES.length;i++)if(HOUSES[i].id===id)return HOUSES[i];return HOUSES[0]};
+var $=function(s){return document.querySelector(s)};
+
+/* ── 시나리오 3종 ──────────────────────────────────────────── */
+function seed(){return{
+ seq:4,tab:"dash",flash:null,
+ reqs:[
+  {id:"R1",who:"정하늘",grade:"과장",house:"H1",rent:95,status:"auto",locked:false},
+  {id:"R2",who:"오지훈",grade:"차장",house:"H2",rent:135,status:"pending",locked:true},
+  {id:"R3",who:"한소율",grade:"과장",house:"H2",rent:135,status:"rejected",locked:true}
+ ],
+ log:[
+  {t:"11/15 14:02",m:"R2 월세 135만 > 차장 한도 120만 → 결재 대기 · 계약 기록 잠금"},
+  {t:"11/12 09:10",m:"R1 월세 95만 ≤ 과장 한도 100만 → 자동 승인 · 계약 기록 열림"},
+  {t:"11/10 16:40",m:"R3 결재권자 반려 → 계약 기록 잠금 유지"}
+ ]}}
+
+var S,role="dispatch";
+try{S=JSON.parse(localStorage.getItem("sd")||"null");role=localStorage.getItem("sr")||role}catch(e){}
+if(!S||!S.reqs)S=seed();
+if(!S.tab)S.tab="dash";
+if(!ROLES[role])role="dispatch";
+var save=function(){try{localStorage.setItem("sd",JSON.stringify(S));localStorage.setItem("sr",role)}catch(e){}};
+var now=function(){var d=new Date();
+ return (d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};
+
+var tt;function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");
+ clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},3000)}
+
+/* 같은 화면에서 모션은 한 번만, 표시는 계속 */
+var seen={};
+
+/* ── 조각 ──────────────────────────────────────────────────── */
+var ST={auto:["자동 승인","t-ok"],approved:["결재 승인","t-ok"],pending:["결재 대기","t-w"],rejected:["반려","t-b"]};
+var stTag=function(r){return '<span class="tag '+ST[r.status][1]+'">'+ST[r.status][0]+"</span>"};
+var lk=function(r){return r.locked
+ ? '<span class="st lock">'+I.lock+"잠금</span>"
+ : '<span class="st open">'+I.open+"열림</span>"};
+var flashMark=function(r){
+ if(!S.flash||S.flash.id!==r.id)return "";
+ return S.flash.ok?' <span class="mark o">방금 잠금 해제</span>':' <span class="mark b">방금 반려</span>'};
+var prog=function(r){
+ var s=r.status,done=(s==="auto"||s==="approved");
+ var a=["d","d",s==="auto"?"d":s==="pending"?"c":s==="approved"?"d":"x",done?"d":""];
+ return '<span class="pg" role="img" aria-label="진행: 신청 · 한도 확인 · 결재 · 계약 기록">'+
+  '<i class="'+a[0]+'"></i><u class="'+a[0]+'"></u><i class="'+a[1]+'"></i><u class="'+a[1]+'"></u>'+
+  '<i class="'+a[2]+'"></i><u class="'+(done?"d":"")+'"></u><i class="'+a[3]+'"></i></span>'};
+
+function tbl(head,rows,keys){
+ var th=head.map(function(h,i){
+  var c=keys&&keys[i]?keys[i]:"";
+  return '<th class="'+(c==="num"?"num":"")+'" scope="col">'+esc(h)+"</th>"}).join("");
+ var tb=rows.map(function(r){
+  var cls=r.__flash?' class="flash"':"";
+  var cells=r.cells.map(function(c,i){
+   var k=keys&&keys[i]?keys[i]:"";
+   var lab=head[i]?esc(head[i]):"";
+   var cc=k?k:(lab?"":"blank");
+   return '<td class="'+cc+'" data-label="'+lab+'"><span class="cv">'+c+"</span></td>"}).join("");
+  return "<tr"+cls+">"+cells+"</tr>"}).join("");
+ return "<table><thead><tr>"+th+"</tr></thead><tbody>"+tb+"</tbody></table>"}
+
+/* 행 모션: 이 화면에서 처음 보는 변경이면 깜빡 */
+function rowFlash(r,hash){
+ if(!S.flash||S.flash.id!==r.id)return false;
+ var key=hash+":"+r.id+":"+S.flash.at;
+ if(seen[key])return false;
+ seen[key]=1;return true}
+
+/* ── 동작 ──────────────────────────────────────────────────── */
+var navLock=false;
+function cur(){return location.hash||"#/"}
+/* 주소를 바꾸고 바로 그린다. 이어서 오는 hashchange는 한 번 건너뛴다 */
+function nav(t){if(cur()!==t){navLock=true;location.hash=t}render()}
+function go(r,h){role=r;save();nav(h||HOME[r])}
+window.go=go;
+window.goHash=nav;
+
+window.apply=function(id,ok){
+ var r=null,i;for(i=0;i<S.reqs.length;i++)if(S.reqs[i].id===id)r=S.reqs[i];
+ if(!r)return;
+ r.status=ok?"approved":"rejected";r.locked=!ok;
+ S.flash={id:id,ok:ok,at:Date.now()};
+ S.log.unshift({t:now(),m:id+" 결재권자 "+(ok?"승인 → 계약 기록 잠금 해제":"반려 → 계약 기록 잠금 유지")});
+ save();render();
+ toast(ok?"승인했습니다. 사택담당자 화면의 계약 기록 잠금이 풀렸습니다"
+         :"반려했습니다. 계약 기록 잠금이 그대로 유지됩니다")};
+
+window.submitReq=function(){
+ var w=($("#fw").value||"").trim()||"신규 발령자",g=$("#fg").value,h=H($("#fh").value);
+ var lim=LIMIT[g],over=h.rent>lim,id="R"+(S.seq++);
+ S.reqs.unshift({id:id,who:w,grade:g,house:h.id,rent:h.rent,status:over?"pending":"auto",locked:over});
+ S.flash=null;
+ S.log.unshift({t:now(),m:over
+  ? id+" 월세 "+h.rent+"만 > "+g+" 한도 "+lim+"만 → 결재 대기 · 계약 기록 잠금"
+  : id+" 월세 "+h.rent+"만 ≤ "+g+" 한도 "+lim+"만 → 자동 승인 · 계약 기록 열림"});
+ save();render();
+ toast(over?"한도 "+lim+"만 초과 → 결재 대기, 계약 기록이 잠겼습니다"
+          :"한도 "+lim+"만 이내 → 자동 승인되었습니다")};
+
+window.tab=function(k,on,n){
+ if(!on){toast("“"+n+"”은(는) 본 개발에서 구현합니다");return}
+ S.tab=k;save();render()};
+window.demoFix=function(){toast("시연용 표시입니다. 계약 확정 처리는 본 개발에서 구현합니다")};
+
+$("#reset").onclick=function(){
+ if(confirm("시연 데이터를 처음 상태로 되돌립니다.")){
+  S=seed();role="dispatch";seen={};save();nav("#/");
+  toast("처음 상태로 돌아왔습니다")}};
+
+/* ── 첫 화면 ───────────────────────────────────────────────── */
+function landing(){
+ var ex=H("H2"),lim=LIMIT["차장"],gap=ex.rent-lim;
+ return '<div class="wrap">'+
+ '<section class="sec hero"><div class="hero-grid">'+
+  '<div>'+
+   '<p class="eyebrow">시연용 샘플 · 가상 데이터</p>'+
+   "<h1>역할을 바꿔 눌러도 <em>승인과 잠금은 앞뒤가 맞습니다</em></h1>"+
+   '<p class="lead">다섯 역할은 서로 다른 화면을 보지만, 읽고 쓰는 데이터는 하나입니다. '+
+   "결재권자가 승인하는 순간 담당자 화면의 잠금이 풀리고, 반려하면 잠긴 채로 남습니다. "+
+   "새로고침해도 그 상태가 그대로입니다. 설명 대신 직접 눌러서 확인해 보십시오.</p>"+
+   '<div class="cta"><button class="btn lg" onclick="go(\'dispatch\')">시연 시작하기</button>'+
+   '<button class="btn g lg" onclick="goHash(\'#guide\')">따라가는 순서 보기</button></div>'+
+  "</div>"+
+  '<div><p class="eyebrow">한도 초과 예시 · 시연 데이터 R2</p><div class="readout"><dl>'+
+   "<dt>신청 사택</dt><dd>"+esc(ex.name.replace("청주 ",""))+"</dd>"+
+   "<dt>신청 월세</dt><dd class=\"over\">"+ex.rent+"만 원</dd>"+
+   "<dt>차장 직급 한도</dt><dd>"+lim+"만 원</dd>"+
+   "<dt>한도 초과액</dt><dd class=\"over\">+"+gap+"만 원</dd>"+
+  '</dl><p class="verdict">'+I.warn+"결재 승인 전까지 계약 기록 잠금</p>"+
+  '<p class="small" style="margin-top:12px">한도 이내면 자동 승인, 초과하면 결재권자가 처리할 때까지 계약을 확정할 수 없습니다.</p>'+
+  "</div></div>"+
+ "</div></section>"+
+
+ '<section class="sec" id="guide"><div class="spread">'+
+  '<div class="lab"><p class="eyebrow">01 / 따라가기</p><p>역할 전환은 화면 위쪽에서 합니다. 상태는 새로고침해도 유지됩니다.</p></div>'+
+  '<div class="body"><h2 style="font-size:22px">세 번만 누르면 앞뒤가 맞는지 보입니다</h2>'+
+  '<ol class="steps">'+
+   "<li><div><b>발령자가 한도를 넘는 사택을 신청합니다</b><span>그 즉시 계약 기록이 잠깁니다</span></div>"+
+   '<button class="btn g sm" onclick="go(\'dispatch\')">발령자 화면</button></li>'+
+   "<li><div><b>결재권자가 초과 건을 승인하거나 반려합니다</b><span>승인 전까지는 누구도 계약을 확정할 수 없습니다</span></div>"+
+   '<button class="btn g sm" onclick="go(\'approver\')">결재함 열기</button></li>'+
+   "<li><div><b>담당자 화면에서 잠금이 풀린 것을 확인합니다</b><span>바뀐 행에 방금 변경 표시가 남습니다</span></div>"+
+   '<button class="btn g sm" onclick="go(\'staff\')">계약 기록 보기</button></li>'+
+  "</ol></div>"+
+ "</div></section>"+
+
+ '<section class="sec"><div class="spread">'+
+  '<div class="lab"><p class="eyebrow">02 / 기준</p><p>본 개발에서 정확성을 지키는 방향입니다.</p></div>'+
+  '<div class="body"><div class="cols">'+
+   "<div><h3>기준을 화면에 내장</h3><p>직급 한도와 결재 라인을 화면 규칙으로 고정해 사람마다 해석이 달라지지 않게 합니다.</p></div>"+
+   "<div><h3>규정 원본 보존</h3><p>개정 전후 버전을 남겨 왜 그렇게 처리됐는지 근거를 다시 열어 볼 수 있습니다.</p></div>"+
+   "<div><h3>대사와 감사 기록</h3><p>승인·계약·지급을 맞춰 보고 불일치는 조치까지 추적합니다.</p></div>"+
+  "</div></div>"+
+ "</div></section>"+
+
+ '<section class="sec"><div class="spread">'+
+  '<div class="lab"><p class="eyebrow">03 / 이 샘플의 범위</p></div>'+
+  '<div class="body"><div class="figs">'+
+   "<div><b>5</b><span>시연 역할 (본 개발 9개)</span></div>"+
+   "<div><b>3</b><span>미리 넣어 둔 시나리오</span></div>"+
+   "<div><b>1</b><span>모든 역할이 쓰는 공유 데이터</span></div>"+
+   "<div><b>3</b><span>구현한 어드민 메뉴 (전체 13개)</span></div>"+
+  "</div></div>"+
+ "</div></section></div>"+
+ '<footer><div class="wrap"><p>시연용 샘플입니다. 이름·주소·계좌·등기 정보는 모두 가상 데이터입니다.</p>'+
+ "<p>본 개발에서는 9개 역할과 어드민 13개 메뉴를 같은 구조로 확장합니다.</p></div></footer>"}
+
+/* ── 역할별 화면 ───────────────────────────────────────────── */
+var V={
+"#/me":function(hash){
+ var rows=S.reqs.map(function(r){return {__flash:rowFlash(r,hash),cells:[
+  '<span class="id">'+r.id+"</span>",esc(r.who)+" <span class=\"small\">("+r.grade+")</span>",
+  esc(H(r.house).name),r.rent+"만",stTag(r)+flashMark(r),prog(r),lk(r)]}});
+ return '<section class="blk"><h2>입주 신청</h2>'+
+  '<p class="small">직급별 월세 한도 — 과장 100만 · 차장 120만 · 부장 150만. 한도를 넘기면 결재 대기로 넘어가고 계약 기록이 잠깁니다.</p>'+
+  '<div class="form">'+
+   '<div class="fld"><label for="fw">이름</label><input id="fw" placeholder="정하늘" style="width:120px"></div>'+
+   '<div class="fld"><label for="fg">직급</label><select id="fg">'+Object.keys(LIMIT).map(function(g){
+     return "<option>"+g+"</option>"}).join("")+"</select></div>"+
+   '<div class="fld" style="flex:1 1 260px"><label for="fh">사택</label><select id="fh">'+HOUSES.map(function(h){
+     return '<option value="'+h.id+'">'+esc(h.name)+" · 월세 "+h.rent+"만</option>"}).join("")+"</select></div>"+
+   '<button class="btn" onclick="submitReq()">신청하기</button>'+
+  "</div></section>"+
+ '<section class="blk"><h2>신청 현황</h2>'+
+  tbl(["번호","신청자","사택","월세","상태","진행","계약 기록"],rows,["id","","","num","","",""])+"</section>"+
+ '<section class="blk"><h2>등기부 요약본</h2>'+
+  '<p class="small">발령자에게는 개인정보를 가린 요약본만 보입니다. 원본은 사택담당자 화면에서 열람합니다.</p>'+
+  tbl(["사택","소유자","식별번호","근저당"],HOUSES.map(function(h){return {cells:[
+   esc(h.name),maskName(h.owner),"******-*******",
+   h.reg.indexOf("근저당 없음")>-1?'<span class="tag t-ok">없음</span>':'<span class="tag t-w">1건</span>']}}))+
+ "</section>"},
+
+"#/contracts":function(hash){
+ var rows=S.reqs.map(function(r){return {__flash:rowFlash(r,hash),cells:[
+  '<span class="id">'+r.id+"</span>",esc(H(r.house).name),r.rent+"만",stTag(r)+flashMark(r),lk(r),
+  '<button class="btn sm'+(r.locked?" g":"")+'" '+
+   (r.locked?'disabled aria-describedby="lockhint"':'onclick="demoFix()"')+">계약 확정</button>"]}});
+ return '<section class="blk"><h2>신청 건별 잠금 상태</h2>'+
+  '<p class="small" id="lockhint">결재 승인 전(잠금)에는 계약 확정 버튼이 눌리지 않습니다. 결재권자가 승인하면 같은 행의 잠금이 풀립니다.</p>'+
+  tbl(["번호","사택","월세","상태","계약 기록",""],rows,["id","","num","","","act"])+"</section>"+
+ '<section class="blk"><h2>등기부 원본 · 임대인 계좌</h2>'+
+  '<p class="small">담당자는 등기부 원본을 열람합니다. 임대인 계좌는 가운데 자리를 가려 표시합니다.</p>'+
+  tbl(["사택","등기부 원본","임대인 계좌"],HOUSES.map(function(h){return {cells:[
+   esc(h.name),'<span class="small">'+esc(h.reg)+"</span>",'<span class="id">'+mask(h.acct)+"</span>"]}}))+
+ "</section>"},
+
+"#/approvals":function(hash){
+ var p=S.reqs.filter(function(r){return r.status==="pending"});
+ var done=S.reqs.filter(function(r){return r.status==="approved"||r.status==="rejected"});
+ var out='<section class="blk"><h2>결재 대기 목록 '+
+  '<span class="tag '+(p.length?"t-w":"t-ok")+'">대기 '+p.length+"건</span></h2>";
+ out+=p.length
+  ? '<p class="small">승인하면 사택담당자의 계약 기록 잠금이 즉시 풀립니다. 반려하면 잠긴 상태로 남습니다.</p>'+
+    tbl(["번호","신청자","사택","월세 / 한도","처리"],p.map(function(r){return {cells:[
+     '<span class="id">'+r.id+"</span>",esc(r.who)+" <span class=\"small\">("+r.grade+")</span>",
+     esc(H(r.house).name),
+     '<span class="mono">'+r.rent+"만 / "+LIMIT[r.grade]+"만</span> "+
+      '<span class="mark b">+'+(r.rent-LIMIT[r.grade])+"만</span>",
+     '<button class="btn ok sm" onclick="apply(\''+r.id+'\',true)">승인</button> '+
+     '<button class="btn no sm" onclick="apply(\''+r.id+'\',false)">반려</button>'
+    ]}}),["id","","","num","act"])
+  : '<p class="small">대기 중인 결재가 없습니다. 발령자 화면에서 한도를 넘는 사택을 신청하면 이 목록에 올라옵니다.</p>';
+ out+="</section>";
+ if(done.length){
+  out+='<section class="blk"><h2>처리 내역</h2>'+
+   tbl(["번호","신청자","사택","결과","계약 기록"],done.map(function(r){return {__flash:rowFlash(r,hash),cells:[
+    '<span class="id">'+r.id+"</span>",esc(r.who),esc(H(r.house).name),stTag(r)+flashMark(r),lk(r)]}}),
+    ["id","","","",""])+"</section>"}
+ return out},
+
+"#/landlord":function(hash){
+ return '<section class="blk"><h2>사택별 계좌와 입주 상태</h2>'+
+  '<p class="small">수취 계좌는 가운데 자리를 가려 표시합니다. 임대인에게는 발령자의 인사 정보가 보이지 않습니다.</p>'+
+  tbl(["사택","월세","수취 계좌","입주 상태"],HOUSES.map(function(h){
+   var ok=S.reqs.filter(function(x){return x.house===h.id&&(x.status==="auto"||x.status==="approved")}).length;
+   var wait=S.reqs.filter(function(x){return x.house===h.id&&x.status==="pending"}).length;
+   return {cells:[esc(h.name),h.rent+"만",'<span class="id">'+mask(h.acct)+"</span>",
+    ok?'<span class="tag t-ok">입주 승인 '+ok+"건</span>"
+      :wait?'<span class="tag t-w">결재 대기</span>':'<span class="tag t-b">공실</span>']}}),
+   ["","num","",""])+"</section>"},
+
+"#/admin":function(hash){
+ var cnt=function(s){return S.reqs.filter(function(r){return r.status===s}).length};
+ var nav='<nav aria-label="운영자 메뉴"><ul class="menu">'+MENUS.map(function(m){
+  return "<li><button "+(m.on?'aria-current="'+(S.tab===m.k)+'"':'class="soon"')+
+   ' onclick="tab(\''+m.k+"',"+(m.on?1:0)+",'"+m.n+"')\">"+esc(m.n)+
+   (m.on?"":'<em>본 개발에서 구현</em>')+"</button></li>"}).join("")+"</ul></nav>";
+ var body="";
+ if(S.tab==="dash"){
+  body='<section class="blk" style="padding-top:0"><h2>처리 현황</h2>'+
+   '<div class="kpis">'+
+    "<div><b>"+cnt("auto")+'</b><span>자동 승인</span></div>'+
+    "<div><b>"+cnt("pending")+'</b><span>결재 대기</span></div>'+
+    "<div><b>"+cnt("approved")+'</b><span>결재 승인</span></div>'+
+    "<div><b>"+cnt("rejected")+'</b><span>반려</span></div>'+
+   "</div>"+
+   '<p class="small">발령자·결재권자 화면에서 처리한 결과가 같은 데이터로 집계됩니다.</p></section>'+
+   '<section class="blk"><h2>최근 감사 로그</h2>'+
+   tbl(["시각","내용"],S.log.slice(0,4).map(function(l){return {cells:[
+    '<span class="id">'+esc(l.t)+"</span>",esc(l.m)]}}),["id",""])+"</section>"}
+ else if(S.tab==="contract"){
+  body='<section class="blk" style="padding-top:0"><h2>계약 관리</h2>'+
+   '<p class="small">잠금 상태는 결재 결과에 따라 자동으로 결정됩니다. 운영자가 임의로 풀 수 없습니다.</p>'+
+   tbl(["번호","신청자","사택","월세","상태","계약 기록"],S.reqs.map(function(r){return {
+    __flash:rowFlash(r,hash+":"+S.tab),cells:[
+    '<span class="id">'+r.id+"</span>",esc(r.who),esc(H(r.house).name),r.rent+"만",
+    stTag(r)+flashMark(r),lk(r)]}}),["id","","","num","",""])+"</section>"}
+ else{
+  body='<section class="blk" style="padding-top:0"><h2>감사 로그</h2>'+
+   '<p class="small">신청·한도 판정·결재·잠금 변경이 시각과 함께 남습니다.</p>'+
+   tbl(["시각","내용"],S.log.map(function(l){return {cells:[
+    '<span class="id">'+esc(l.t)+"</span>",esc(l.m)]}}),["id",""])+"</section>"}
+ return '<div class="admin">'+nav+"<div>"+body+"</div></div>"}
+};
+
+/* ── 그리기 ────────────────────────────────────────────────── */
+function render(){
+ var h=cur();
+ if(h==="#guide")h="#/";
+ $("#roles").innerHTML=Object.keys(ROLES).map(function(k){
+  var on=(k===role&&h!=="#/");
+  return '<button type="button" aria-pressed="'+on+'" onclick="go(\''+k+'\')">'+ROLES[k]+"</button>"}).join("");
+
+ if(h==="#/"){
+  $("#v").innerHTML=landing();
+  if(location.hash==="#guide"){var g=document.getElementById("guide");if(g)g.scrollIntoView({block:"start"})}
+  return}
+
+ var need=ROUTE[h];
+ var page=function(c){return '<main class="wrap" id="main">'+c+"</main>"};
+
+ if(!need){
+  $("#v").innerHTML=page('<div class="notice"><p class="code">404 · NOT FOUND</p>'+
+   "<h2>없는 주소입니다</h2>"+
+   '<p class="lead">주소를 다시 확인해 주십시오. 이 샘플에 있는 화면은 다섯 역할의 기본 화면뿐입니다.</p>'+
+   '<div class="cta"><button class="btn" onclick="go(\''+role+'\')">내 화면으로</button>'+
+   '<button class="btn g" onclick="goHash(\'#/\')">첫 화면으로</button></div></div>');
+  return}
+
+ if(need!==role){
+  $("#v").innerHTML=page('<div class="notice"><p class="code">403 · FORBIDDEN</p>'+
+   "<h2>접근 권한이 없습니다</h2>"+
+   '<p class="lead">이 화면은 <b>'+ROLES[need]+"</b> 전용입니다. 현재 역할은 <b>"+ROLES[role]+
+   "</b>입니다. 주소를 직접 입력해도 역할에 없는 화면은 열리지 않습니다.</p>"+
+   '<div class="cta"><button class="btn" onclick="go(\''+role+'\')">내 화면으로</button>'+
+   '<button class="btn g" onclick="go(\''+need+'\')">'+ROLES[need]+"로 전환</button></div></div>");
+  return}
+
+ $("#v").innerHTML=page('<div class="ttl"><h1>'+TITLE[h]+"</h1>"+
+  '<p class="who">'+ROLES[role]+" · "+PERSONA[role]+"</p></div>"+V[h](h))}
+
+window.addEventListener("hashchange",function(){
+ if(navLock){navLock=false;return}
+ render()});
+render();
+</script>
+</body>
+</html>
