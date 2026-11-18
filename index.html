@@ -87,11 +87,12 @@ h1,h2,h3{font-family:var(--font-d);font-weight:300;text-wrap:balance;margin:0;le
 @keyframes cue{50%{transform:scaleX(.38);transform-origin:left}}
 @media(prefers-reduced-motion:reduce){.cue i{animation:none}}
 
-.decl{min-height:clamp(320px,42vh,420px);text-align:center}
-.decl::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(26,28,32,.34),rgba(26,28,32,.52))}
+.decl{min-height:clamp(340px,44vh,440px);text-align:center;background:#DCE2E6}
+.decl::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(252,250,246,.42),rgba(252,250,246,.70))}
 .decl .bleed-in{padding-block:clamp(48px,6vw,72px)}
-.decl h2{font-size:clamp(20px,2.7vw,31px);line-height:2}
-.decl .rule{width:1px;height:46px;background:rgba(247,243,235,.5);margin:0 auto 26px}
+.decl h2{font-size:clamp(20px,2.7vw,31px);line-height:2;color:#23201D}
+.decl p.lbl{color:rgba(35,32,29,.55)}
+.decl .rule{width:1px;height:46px;background:rgba(35,32,29,.42);margin:0 auto 26px}
 
 .pair{min-height:clamp(400px,52vh,520px)}
 .pair>img{object-position:28% 50%}
