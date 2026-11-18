@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="color-scheme" content="light dark">
+<title>매장 취향 매칭 · 프로토타입</title>
+<style>
+:root{
+  --bg:#EFEAE4; --card:#FFFFFF; --card2:#FBF8F4; --line:#E3DCD3; --line2:#D2C8BC;
+  --ink:#1A1714; --sub:#665C52; --accent:#8C4F2F; --ok:#2F6B3F; --no:#A3382B;
+  --sh:0 1px 2px rgba(26,23,20,.04),0 18px 40px -16px rgba(26,23,20,.18);
+  --shc:0 2px 6px rgba(26,23,20,.06),0 30px 60px -20px rgba(26,23,20,.28);
+  --sans:system-ui,-apple-system,"Segoe UI","Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:20px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141110; --line:#E0D8CE; --line2:#CFC4B6;
+    --sh:0 1px 2px rgba(0,0,0,.5),0 18px 40px -16px rgba(0,0,0,.7);
+    --shc:0 2px 6px rgba(0,0,0,.55),0 30px 60px -20px rgba(0,0,0,.8)}
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);
+  word-break:keep-all;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  display:flex;flex-direction:column;align-items:center}
+h1,h2,h3,p,ul,ol{margin:0}
+h1,h2,h3{letter-spacing:-.035em;line-height:1.2;font-weight:700}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:10px;top:10px;background:var(--ink);color:var(--card);padding:9px 13px;z-index:90}
+
+/* 자연광 배경 — 채도를 낮춘 */
+.ambient{position:fixed;inset:0;z-index:-2;
+  background:
+   radial-gradient(90% 70% at 18% 8%, rgba(214,183,150,.55), transparent 60%),
+   radial-gradient(80% 60% at 88% 92%, rgba(150,160,158,.42), transparent 62%),
+   var(--bg)}
+@media (prefers-color-scheme:dark){.ambient{background:
+   radial-gradient(90% 70% at 18% 8%, rgba(112,86,62,.5), transparent 60%),
+   radial-gradient(80% 60% at 88% 92%, rgba(52,62,64,.5), transparent 62%),
+   var(--bg)}}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.26'/></svg>")}
+
+/* 모든 글자는 흰 카드 안에만 */
+.shell{width:100%;max-width:440px;padding:16px 16px 28px;flex:1;display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:22px}
+.panel.flat{box-shadow:none;background:var(--card2)}
+.bar{background:var(--card);border-radius:999px;box-shadow:var(--sh);padding:7px 8px;
+  display:flex;align-items:center;gap:6px;position:sticky;top:12px;z-index:30}
+.bar .nm{font-size:13.5px;font-weight:700;letter-spacing:-.02em;padding-left:10px;white-space:nowrap}
+.bar .sp{flex:1}
+.ghost{background:none;border:0;color:var(--sub);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:999px}
+.ghost:hover{color:var(--ink);background:var(--card2)}
+.eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub)}
+.lead{color:var(--sub);font-size:14.5px;margin-top:9px}
+.small{color:var(--sub);font-size:12.5px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:999px;padding:13px 22px;
+  font-size:15px;font-weight:700;letter-spacing:-.01em;width:100%;transition:filter .18s,transform .18s}
+.btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.985)}
+.btn.g{background:var(--card2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.row{display:flex;gap:9px}.row>*{flex:1}
+.steps{display:flex;gap:5px;align-items:center;padding:0 2px}
+.steps i{height:3px;flex:1;border-radius:2px;background:var(--line)}
+.steps i.on{background:var(--accent)}
+
+/* 사진 자리 — 채도를 낮춘 자연광 */
+.ph{position:relative;overflow:hidden;background:var(--g1)}
+.ph:before{content:"";position:absolute;inset:0;
+  background:linear-gradient(150deg,var(--g1),var(--g2) 62%,var(--g3))}
+.ph:after{content:"";position:absolute;inset:0;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23m)' opacity='.3'/></svg>"),
+   radial-gradient(70% 55% at 28% 18%, rgba(255,250,240,.5), transparent 58%),
+   linear-gradient(180deg,transparent 52%,rgba(28,22,16,.42));
+  mix-blend-mode:normal}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+.ph .mk{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:16px}
+
+/* 스와이핑 카드 */
+.deck{position:relative;height:min(62vh,440px);min-height:330px;touch-action:pan-y}
+.sw{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:var(--card);
+  box-shadow:var(--shc);will-change:transform;user-select:none;-webkit-user-select:none}
+.sw:nth-last-child(2){transform:scale(.955) translateY(22px);box-shadow:none}
+.sw:nth-last-child(3){transform:scale(.91) translateY(44px);box-shadow:none}
+.deck{padding-bottom:30px}
+.sw .ph{position:absolute;inset:0}
+.sw .info{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;background:var(--card);
+  border-radius:15px;padding:15px 16px}
+.sw .info h2{font-size:19px}
+.sw .info .kv{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.tagm{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;
+  background:var(--card2);color:var(--sub);box-shadow:inset 0 0 0 1px var(--line)}
+.tagm.hit{color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.pct{position:absolute;top:12px;right:12px;z-index:4;background:var(--card);border-radius:999px;
+  padding:7px 13px;font-size:12.5px;font-weight:700}
+.pct b{color:var(--accent)}
+.stampbox{position:absolute;inset:0;z-index:5;pointer-events:none}
+.stamp{position:absolute;top:20px;background:var(--card);border-radius:12px;padding:8px 14px;
+  font-size:14px;font-weight:800;letter-spacing:-.02em;opacity:0;transition:opacity .12s}
+.stamp.y{left:18px;color:var(--ok);box-shadow:inset 0 0 0 2px var(--ok);transform:rotate(-9deg)}
+.stamp.n{right:18px;color:var(--no);box-shadow:inset 0 0 0 2px var(--no);transform:rotate(9deg)}
+.acts{display:flex;gap:12px;justify-content:center;align-items:center}
+.circ{width:58px;height:58px;border-radius:50%;border:0;background:var(--card);box-shadow:var(--sh);
+  display:grid;place-items:center;transition:transform .16s}
+.circ:hover{transform:translateY(-2px)}
+.circ svg{width:23px;height:23px;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.circ.no svg{stroke:var(--no)}.circ.yes svg{stroke:var(--ok)}
+.circ.yes{width:66px;height:66px}.circ.yes svg{width:27px;height:27px}
+
+/* 범위 선택 */
+.fld{margin-top:16px}
+.fld .lb{display:flex;align-items:baseline;gap:8px;font-size:13.5px;font-weight:700}
+.fld .lb u{margin-left:auto;text-decoration:none;font-family:var(--mono);font-size:12px;color:var(--accent)}
+.ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--sub);margin-top:5px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:none;margin:4px 0 0}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:3px;
+  background:linear-gradient(90deg,var(--accent) var(--p,50%),var(--line) var(--p,50%))}
+input[type=range]::-moz-range-track{height:5px;border-radius:3px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:5px;border-radius:3px;background:var(--accent)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:var(--card);box-shadow:0 1px 4px rgba(26,23,20,.3),inset 0 0 0 2px var(--accent);margin-top:-10px}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;
+  background:var(--card);box-shadow:0 1px 4px rgba(26,23,20,.3),inset 0 0 0 2px var(--accent)}
+.txt{width:100%;background:var(--card2);border:0;box-shadow:inset 0 0 0 1px var(--line);
+  border-radius:13px;padding:12px 14px;font-size:15px;margin-top:7px}
+.txt:focus{outline:0;box-shadow:inset 0 0 0 2px var(--accent)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.chip{font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;border:0;
+  background:var(--card2);color:var(--sub);box-shadow:inset 0 0 0 1px var(--line)}
+.chip[aria-pressed="true"]{background:var(--accent);color:#fff;box-shadow:none}
+
+/* 업로드 */
+.drop{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3;margin-top:10px;
+  background:var(--card2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center}
+.drop .ph{position:absolute;inset:0}
+.drop .hint{position:relative;z-index:4;text-align:left;background:var(--card);border-radius:13px;
+  padding:13px 15px;max-width:82%}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:6}
+.thumbs{display:flex;gap:8px;margin-top:10px}
+.thumbs button{flex:1;aspect-ratio:1;border:0;border-radius:11px;overflow:hidden;position:relative;padding:0;
+  box-shadow:inset 0 0 0 1px var(--line)}
+.thumbs button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--accent)}
+.thumbs .ph{position:absolute;inset:0}
+
+/* 매칭 */
+.match{text-align:left}
+.match .duo{display:flex;align-items:center;gap:-18px;margin:16px 0 18px}
+.av{width:78px;height:78px;border-radius:50%;overflow:hidden;position:relative;box-shadow:0 0 0 4px var(--card)}
+.av+.av{margin-left:-20px}
+.av .ph{position:absolute;inset:0}
+/* 채팅 */
+.chat{display:flex;flex-direction:column;gap:9px;max-height:46vh;overflow-y:auto;padding:2px}
+.msg{max-width:84%;padding:11px 14px;border-radius:17px;font-size:14.5px;background:var(--card2);
+  box-shadow:inset 0 0 0 1px var(--line)}
+.msg.me{align-self:flex-end;background:var(--accent);color:#fff;box-shadow:none}
+.msg .t{display:block;font-size:10.5px;opacity:.7;margin-top:4px}
+.send{display:flex;gap:8px;margin-top:12px}
+.send .txt{margin:0}
+.send button{flex:none;width:46px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-weight:800}
+.note{background:var(--card2);border-radius:13px;padding:11px 13px;font-size:12.5px;color:var(--sub);
+  box-shadow:inset 0 0 0 1px var(--line)}
+footer{max-width:440px;padding:0 16px 26px;width:100%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#app">본문으로</a>
+<div class="ambient"></div><div class="grain"></div>
+<div class="shell" id="app"></div>
+<footer><div class="note">정부지원사업 증빙용 프로토타입입니다. 매장명·사진·대화는 모두 가상 데이터이며, 실제 서버 없이 화면에서만 동작합니다.</div></footer>
+<script>
+"use strict";
+/* 사진 자리 — 매장 성격에 맞춘 채도 낮은 색면. 실제 사진으로 교체됩니다 */
+var G=[["#C9A227","#8C6B3F","#4A3A28"],["#4E5D6B","#2E3742","#171C22"],["#D8B08C","#A9794F","#5E412A"],
+       ["#7D4F4F","#4E2F33","#241619"],["#A8BBA2","#6F8A72","#3B4A3D"],["#9A8468","#6A5743","#2C2419"]];
+var STORES=[
+ {id:1,n:"볕드는 자리",k:"연남 · 로스터리",d:"창가 자리가 넓은 작은 로스터리입니다.",t:28,a:22,m:34,g:0,
+  tags:["산미","과일 향","조용한"]},
+ {id:2,n:"밤의 결",k:"성수 · 칵테일 바",d:"조도를 낮춘 바 테이블 중심의 공간입니다.",t:72,a:64,m:82,g:1,
+  tags:["드라이","허브 향","어두운"]},
+ {id:3,n:"밀과 불",k:"망원 · 베이커리",d:"매일 아침 굽는 식사빵을 주로 다룹니다.",t:48,a:30,m:26,g:2,
+  tags:["고소","버터 향","따뜻한"]},
+ {id:4,n:"담담",k:"한남 · 와인바",d:"내추럴 와인을 잔 단위로 냅니다.",t:66,a:72,m:68,g:3,
+  tags:["탄닌","오크 향","격식"]},
+ {id:5,n:"오후 네 시",k:"연희 · 티룸",d:"발효차와 꽃차를 다루는 조용한 찻집입니다.",t:22,a:14,m:18,g:4,
+  tags:["은은","꽃 향","밝은"]},
+ {id:6,n:"모루",k:"을지로 · 위스키 바",d:"피트 위스키를 중심으로 구성했습니다.",t:88,a:90,m:76,g:5,
+  tags:["스모키","피트 향","빈티지"]}
+];
+var AX=[{k:"t",n:"맛",l:"가볍고 산뜻",r:"진하고 묵직"},
+        {k:"a",n:"향",l:"꽃·과일",r:"오크·스모키"},
+        {k:"m",n:"매장 이미지",l:"밝고 활기",r:"어둡고 차분"}];
+var MOODS=["혼자 오래 앉기","대화하기 좋은","날 잡고 가는","퇴근길에 가볍게"];
+function seed(){return{step:0,owner:{n:"",k:"",pic:0,t:50,a:50,m:50,done:false},
+ user:{n:"",t:50,a:50,m:50,mood:[],done:false},i:0,likes:[],passes:[],match:null,chat:[]}}
+var S;try{S=JSON.parse(localStorage.getItem("fnb")||"null")}catch(e){}
+if(!S||!S.user)S=seed();
+var save=function(){try{localStorage.setItem("fnb",JSON.stringify(S))}catch(e){}};
+var $=function(s){return document.querySelector(s)},A=$("#app");
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})};
+var gs=function(i){var g=G[i%G.length];return "--g1:"+g[0]+";--g2:"+g[1]+";--g3:"+g[2]};
+var ST=function(id){for(var i=0;i<STORES.length;i++)if(STORES[i].id===id)return STORES[i]};
+var fit=function(a,b){var d=(Math.abs(a.t-b.t)+Math.abs(a.a-b.a)+Math.abs(a.m-b.m))/3;
+ return Math.max(0,Math.round(100-d*1.15))};
+var upPic=null;
+var SC=["#/","#/owner","#/taste","#/me","#/swipe","#/match","#/chat"];
+function go(h){location.hash=h}
+function bar(step,back){
+ return '<div class="bar">'+(back?'<button class="ghost" onclick="go(\''+back+'\')">‹ 이전</button>':
+  '<span class="nm">매장 취향 매칭</span>')+'<span class="sp"></span>'+
+  '<button class="ghost" onclick="reset()">처음으로</button></div>'+
+  (step?'<div class="steps">'+[1,2,3,4,5].map(function(i){
+    return '<i class="'+(i<=step?"on":"")+'"></i>'}).join("")+"</div>":"")}
+window.go=go;
+window.reset=function(){if(confirm("프로토타입을 처음 상태로 되돌립니다."))
+ {S=seed();upPic=null;save();go("#/");render()}};
+
+/* ── 화면 ─────────────────────────────────────────────── */
+var V={};
+V["#/"]=function(){return bar(0)+
+ '<div class="panel" style="padding:0;overflow:hidden">'+
+  '<div class="ph" style="'+gs(2)+';aspect-ratio:16/11">'+
+   '<div class="mk"><div class="panel" style="padding:17px 18px">'+
+    '<p class="eyebrow">Prototype · 작동형 시안</p>'+
+    '<h1 style="font-size:25px;margin-top:9px">취향이 맞는 가게를<br>넘기면서 찾습니다</h1>'+
+   "</div></div></div>"+
+  '<div style="padding:20px 22px 22px">'+
+   '<p class="small">사장님이 매장의 맛·향·이미지를 등록하고, 손님이 카드를 좌우로 넘겨 고릅니다. '+
+   "서로 맞으면 매칭되어 대화로 이어집니다. 일치율은 양쪽이 설정한 값으로 실제 계산됩니다.</p>"+
+   '<div style="margin-top:18px"><button class="btn" onclick="go(\'#/owner\')">전체 흐름 보기</button></div>'+
+   '<div class="row" style="margin-top:9px">'+
+    '<button class="btn g" onclick="go(\'#/owner\')">사장님 화면</button>'+
+    '<button class="btn g" onclick="skipToSwipe()">손님 화면</button></div>'+
+  "</div></div>"+
+ '<div class="panel flat"><p class="eyebrow">화면 구성</p>'+
+  '<p class="small" style="margin-top:8px">매장 등록 · 맛/향/이미지 범위 설정 · 손님 취향 입력 · 카드 스와이핑 · 매칭 · 대화. '+
+  "모두 브라우저에서 바로 동작합니다.</p></div>"};
+
+V["#/owner"]=function(){var o=S.owner;return bar(1,"#/")+
+ '<div class="panel"><p class="eyebrow">사장님 · 1 / 2</p>'+
+  '<h2 style="font-size:21px;margin-top:9px">매장을 등록합니다</h2>'+
+  '<p class="lead">사진과 기본 정보를 넣습니다.</p>'+
+  '<div class="drop">'+(upPic?'<img class="ph" src="'+upPic+'" alt="올린 매장 사진">':
+    '<div class="ph" style="'+gs(o.pic)+'"></div>')+
+   '<div class="hint"><b style="font-size:13.5px">매장 사진 올리기</b>'+
+    '<span class="small" style="display:block">눌러서 사진을 고르거나 아래 샘플을 선택하세요</span></div>'+
+   '<input type="file" accept="image/*" aria-label="매장 사진 올리기" onchange="pick(this)"></div>'+
+  '<div class="thumbs">'+[0,2,4,5].map(function(i){
+    return '<button aria-pressed="'+(!upPic&&o.pic===i)+'" aria-label="샘플 사진 '+(i+1)+
+     '" onclick="setPic('+i+')"><span class="ph" style="'+gs(i)+'"></span></button>'}).join("")+"</div>"+
+  '<div class="fld"><div class="lb">매장 이름</div>'+
+   '<input class="txt" id="on" value="'+esc(o.n)+'" placeholder="볕드는 자리" oninput="o(\'n\',this.value)"></div>'+
+  '<div class="fld"><div class="lb">지역 · 업종</div>'+
+   '<input class="txt" id="ok" value="'+esc(o.k)+'" placeholder="연남 · 로스터리" oninput="o(\'k\',this.value)"></div>'+
+  '<div style="margin-top:18px"><button class="btn" onclick="go(\'#/taste\')">다음 · 맛과 향 설정</button></div>'+
+ "</div>"};
+
+function slider(ax,obj,fn){var v=obj[ax.k];
+ return '<div class="fld"><div class="lb">'+ax.n+'<u>'+v+"</u></div>"+
+  '<input type="range" min="0" max="100" value="'+v+'" aria-label="'+ax.n+
+   '" style="--p:'+v+'%" oninput="'+fn+"('"+ax.k+'\',this.value,this)">'+
+  '<div class="ends"><span>'+ax.l+"</span><span>"+ax.r+"</span></div></div>"}
+
+V["#/taste"]=function(){var o=S.owner;return bar(2,"#/owner")+
+ '<div class="panel" style="padding:0;overflow:hidden">'+
+  '<div class="ph" style="'+gs(o.pic)+';aspect-ratio:16/7">'+
+   (upPic?'<img src="'+upPic+'" alt="">':"")+
+   '<div class="mk"><div class="panel" style="padding:13px 15px">'+
+    "<b>"+(esc(o.n)||"내 매장")+'</b> <span class="small">'+(esc(o.k)||"지역 · 업종")+"</span>"+
+   "</div></div></div>"+
+  '<div style="padding:20px 22px 22px">'+
+   '<p class="eyebrow">사장님 · 2 / 2</p>'+
+   '<h2 style="font-size:21px;margin-top:9px">추구하는 범위를 정합니다</h2>'+
+   '<p class="lead">손님의 취향과 이 값을 비교해 일치율을 냅니다.</p>'+
+   AX.map(function(a){return slider(a,o,"ow")}).join("")+
+   '<div style="margin-top:20px"><button class="btn" onclick="ownerDone()">등록 완료</button></div>'+
+  "</div></div>"};
+
+V["#/me"]=function(){var u=S.user;return bar(3,"#/taste")+
+ '<div class="panel"><p class="eyebrow">손님 · 취향 입력</p>'+
+  '<h2 style="font-size:21px;margin-top:9px">어떤 자리를 찾으세요?</h2>'+
+  '<p class="lead">입력한 값으로 카드 순서와 일치율이 정해집니다.</p>'+
+  '<div class="fld"><div class="lb">이름</div>'+
+   '<input class="txt" value="'+esc(u.n)+'" placeholder="손님 이름" oninput="uw(\'n\',this.value)"></div>'+
+  AX.map(function(a){return slider(a,u,"uw")}).join("")+
+  '<div class="fld"><div class="lb">찾는 분위기</div><div class="chips">'+
+   MOODS.map(function(m,i){return '<button class="chip" aria-pressed="'+(u.mood.indexOf(i)>-1)+
+    '" onclick="mood('+i+')">'+m+"</button>"}).join("")+"</div></div>"+
+  '<div style="margin-top:20px"><button class="btn" onclick="userDone()">카드 보러 가기</button></div>'+
+ "</div>"};
+
+function card(s,top){var f=fit(S.user,s);
+ return '<article class="sw" data-id="'+s.id+'"'+(top?' id="top"':"")+'>'+
+  '<div class="ph" style="'+gs(s.g)+'"></div>'+
+  '<div class="pct">취향 일치 <b>'+f+"%</b></div>"+
+  '<div class="stampbox"><span class="stamp y">좋아요</span><span class="stamp n">넘기기</span></div>'+
+  '<div class="info"><p class="eyebrow">'+esc(s.k)+"</p>"+
+   '<h2 style="margin-top:6px">'+esc(s.n)+"</h2>"+
+   '<p class="small" style="margin-top:6px">'+esc(s.d)+"</p>"+
+   '<div class="kv">'+s.tags.map(function(t,i){
+     var hit=(i===0&&Math.abs(S.user.t-s.t)<22)||(i===1&&Math.abs(S.user.a-s.a)<22)||(i===2&&Math.abs(S.user.m-s.m)<22);
+     return '<span class="tagm'+(hit?" hit":"")+'">'+t+"</span>"}).join("")+
+  "</div></div></article>"}
+
+V["#/swipe"]=function(){
+ var rest=STORES.slice(S.i);
+ if(!rest.length)return bar(4,"#/me")+
+  '<div class="panel"><p class="eyebrow">카드 끝</p><h2 style="font-size:21px;margin-top:9px">오늘 볼 카드를 모두 봤습니다</h2>'+
+  '<p class="lead">좋아요 '+S.likes.length+"건 · 넘김 "+S.passes.length+"건.</p>"+
+  '<div style="margin-top:18px"><button class="btn" onclick="again()">다시 보기</button></div></div>';
+ var deck=rest.slice(0,3).reverse().map(function(s,i,arr){
+  return card(s,i===arr.length-1)}).join("");
+ return bar(4,"#/me")+
+  '<div class="deck" id="deck">'+deck+"</div>"+
+  '<div class="acts"><button class="circ no" aria-label="넘기기" onclick="dec(0)">'+
+   '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
+   '<button class="circ yes" aria-label="좋아요" onclick="dec(1)">'+
+   '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.2A4 4 0 0 1 12 8a4 4 0 0 1 7-2.8c0 4.8-7 14.8-7 14.8z"/></svg>'+
+   "</button></div>"+
+  '<div class="note">카드를 좌우로 끌거나 버튼을 누르세요. 키보드 ← → 로도 됩니다. 남은 카드 '+rest.length+"장.</div>"};
+
+V["#/match"]=function(){var s=ST(S.match)||STORES[0];return bar(5,null)+
+ '<div class="panel match">'+
+  '<div class="duo"><span class="av"><span class="ph" style="'+gs(S.owner.pic)+'"></span></span>'+
+   '<span class="av"><span class="ph" style="'+gs(s.g)+'"></span></span></div>'+
+  '<p class="eyebrow">Matched</p>'+
+  '<h2 style="font-size:24px;margin-top:9px">'+esc(s.n)+"과(와) 매칭됐습니다</h2>"+
+  '<p class="lead">취향 일치 '+fit(S.user,s)+"%. 서로 연락할 수 있습니다.</p>"+
+  '<div style="margin-top:20px"><button class="btn" onclick="openChat()">대화 시작하기</button></div>'+
+  '<div style="margin-top:9px"><button class="btn g" onclick="go(\'#/swipe\')">카드 더 보기</button></div>'+
+ "</div>"};
+
+V["#/chat"]=function(){var s=ST(S.match)||STORES[0];return bar(5,"#/swipe")+
+ '<div class="panel" style="padding:0;overflow:hidden">'+
+  '<div class="ph" style="'+gs(s.g)+';aspect-ratio:16/5">'+
+   '<div class="mk"><div class="panel" style="padding:12px 14px">'+
+    "<b>"+esc(s.n)+'</b> <span class="small">'+esc(s.k)+"</span></div></div></div>"+
+  '<div style="padding:16px">'+
+   '<div class="chat" id="chat">'+S.chat.map(function(m){
+     return '<div class="msg'+(m.me?" me":"")+'">'+esc(m.x)+'<span class="t">'+m.t+"</span></div>"}).join("")+"</div>"+
+   '<div class="send"><input class="txt" id="ci" placeholder="메시지를 입력하세요" aria-label="메시지"'+
+    ' onkeydown="if(event.key===\'Enter\')send()">'+
+    '<button onclick="send()" aria-label="보내기">↑</button></div>'+
+  "</div></div>"+
+ '<div class="note">연락처 교환과 알림은 본 개발에서 연동합니다. 이 화면에서는 대화 흐름만 보여 줍니다.</div>'};
+
+/* ── 동작 ─────────────────────────────────────────────── */
+window.pick=function(el){var f=el.files&&el.files[0];if(!f)return;
+ var r=new FileReader();r.onload=function(){upPic=r.result;render()};r.readAsDataURL(f)};
+window.setPic=function(i){upPic=null;S.owner.pic=i;save();render()};
+window.o=function(k,v){S.owner[k]=v;save()};
+window.ow=function(k,v,el){S.owner[k]=+v;if(el){el.style.setProperty("--p",v+"%");
+ el.closest(".fld").querySelector("u").textContent=v}save()};
+window.uw=function(k,v,el){if(k==="n"){S.user.n=v;save();return}
+ S.user[k]=+v;if(el){el.style.setProperty("--p",v+"%");
+ el.closest(".fld").querySelector("u").textContent=v}save()};
+window.mood=function(i){var a=S.user.mood,p=a.indexOf(i);if(p>-1)a.splice(p,1);else a.push(i);save();render()};
+window.ownerDone=function(){S.owner.done=true;save();go("#/me")};
+window.userDone=function(){S.user.done=true;save();go("#/swipe")};
+window.skipToSwipe=function(){S.user.done=true;save();go("#/me")};
+window.again=function(){S.i=0;S.likes=[];S.passes=[];save();render()};
+window.openChat=function(){var s=ST(S.match);
+ if(!S.chat.length)S.chat=[{x:"안녕하세요, 카드 보고 연락드립니다.",t:"방금",me:1},
+  {x:"반갑습니다. 오늘은 9시까지 자리 있어요.",t:"방금",me:0}];
+ save();go("#/chat")};
+window.send=function(){var el=$("#ci"),v=(el.value||"").trim();if(!v)return;
+ S.chat.push({x:v,t:"방금",me:1});el.value="";save();render();
+ var c=$("#chat");if(c)c.scrollTop=c.scrollHeight;
+ setTimeout(function(){S.chat.push({x:"네, 확인했습니다. 편하신 시간에 오세요.",t:"방금",me:0});
+  save();render();var c2=$("#chat");if(c2)c2.scrollTop=c2.scrollHeight},900)};
+
+window.dec=function(like){
+ var s=STORES[S.i];if(!s)return;
+ var el=document.getElementById("top");
+ var done=function(){
+  if(like){S.likes.push(s.id)}else{S.passes.push(s.id)}
+  S.i++;save();
+  if(like&&fit(S.user,s)>=60){S.match=s.id;S.chat=[];save();go("#/match");return}
+  render()};
+ if(!el||matchMedia("(prefers-reduced-motion:reduce)").matches){done();return}
+ el.style.transition="transform .34s cubic-bezier(.3,.7,.3,1),opacity .34s";
+ el.style.transform="translateX("+(like?1:-1)*480+"px) rotate("+(like?22:-22)+"deg)";
+ el.style.opacity="0";
+ setTimeout(done,290)};
+
+function drag(){
+ var el=document.getElementById("top");if(!el)return;
+ var x0=0,y0=0,dx=0,dy=0,on=false;
+ var sy=el.querySelector(".stamp.y"),sn=el.querySelector(".stamp.n");
+ el.addEventListener("pointerdown",function(e){
+  if(e.button)return;on=true;x0=e.clientX;y0=e.clientY;dx=dy=0;
+  el.setPointerCapture(e.pointerId);el.style.transition="none"});
+ el.addEventListener("pointermove",function(e){
+  if(!on)return;dx=e.clientX-x0;dy=e.clientY-y0;
+  if(Math.abs(dx)<Math.abs(dy)&&Math.abs(dy)>14&&Math.abs(dx)<10)return;
+  el.style.transform="translate("+dx+"px,"+dy*.25+"px) rotate("+dx/18+"deg)";
+  if(sy)sy.style.opacity=dx>22?Math.min(1,(dx-22)/90):0;
+  if(sn)sn.style.opacity=dx<-22?Math.min(1,(-dx-22)/90):0});
+ var up=function(){
+  if(!on)return;on=false;
+  if(Math.abs(dx)>96){dec(dx>0?1:0);return}
+  el.style.transition="transform .28s cubic-bezier(.3,.8,.3,1)";
+  el.style.transform="";if(sy)sy.style.opacity=0;if(sn)sn.style.opacity=0};
+ el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
+
+addEventListener("keydown",function(e){
+ if(location.hash!=="#/swipe")return;
+ if(e.key==="ArrowRight"){e.preventDefault();dec(1)}
+ if(e.key==="ArrowLeft"){e.preventDefault();dec(0)}});
+
+function render(){
+ var h=location.hash||"#/";
+ if(!V[h]){A.innerHTML=bar(0)+'<div class="panel"><p class="eyebrow">404</p>'+
+  '<h2 style="font-size:21px;margin-top:9px">없는 화면입니다</h2>'+
+  '<p class="lead">주소를 다시 확인해 주세요.</p>'+
+  '<div style="margin-top:18px"><button class="btn" onclick="go(\'#/\')">처음 화면으로</button></div></div>';return}
+ A.innerHTML=V[h]();
+ if(h==="#/swipe")drag();
+ if(h==="#/chat"){var c=$("#chat");if(c)c.scrollTop=c.scrollHeight}}
+addEventListener("hashchange",render);
+render();
+</script>
+</body>
+</html>
